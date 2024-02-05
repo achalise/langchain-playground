@@ -1,0 +1,8 @@
+GET localhost:8080/chat?question=Pleaes cancel my application. My first name is Joe and my correlationId is 111
+###
+
+GET localhost:8080/chat?question=Pleaes cancel my application. My first name is Joe and my correlationId is 36559B
+###
+
+GET localhost:8080/chat?question=My email is 'curtis@gmail.com'. Please find my applications.
+###
