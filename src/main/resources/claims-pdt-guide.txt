@@ -3,4 +3,5 @@ Product Terms and Conditions
 When the customer is in SUBMITTED state, their application can be withdrawn. But when
 the customer application is already APPROVED, application can no longer be modified by the customer.
 They must call 121345 if they wish to withdraw their application or update the details.
+If the application is in PAYMENT_SUBMITTED state, the funds should be available within 3 days.
 

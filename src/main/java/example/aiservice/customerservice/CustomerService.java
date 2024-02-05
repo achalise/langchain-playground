@@ -24,13 +24,13 @@ public class CustomerService {
     @Tool
     public List<Customer> findCustomer(String email, String correlationId) {
         if (email != null && !StringUtil.isEmpty(email)) {
-            return getCustomerApplications(email);
+            return getCustomerApplicationsByEmail(email);
         }
-        return getCustomer(correlationId);
+        return getCustomerApplicationsByCorrelationid(correlationId);
     }
 
-    private List<Customer> getCustomerApplications(String email) {
-        System.out.println("Finding customer with correlationId " + email);
+    private List<Customer> getCustomerApplicationsByEmail(String email) {
+        System.out.println("Finding customer with email " + email);
         var custList = customers.stream().filter(customer -> customer.email().equals(email)).toList();
         if (custList.isEmpty()) {
             throw new RuntimeException("Customer not found");
@@ -38,7 +38,7 @@ public class CustomerService {
         return custList;
     }
 
-    private List<Customer> getCustomer(String correlationId) {
+    private List<Customer> getCustomerApplicationsByCorrelationid(String correlationId) {
         System.out.println("Finding customer with correlationId " + correlationId);
         var custList = customers.stream().filter(customer -> customer.correlationId().equals(correlationId)).toList();
         if (custList.isEmpty()) {

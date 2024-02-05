@@ -74,7 +74,7 @@ public class Config {
         EmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
 
         // 2. Load an example document ("Miles of Smiles" terms of use)
-        Resource resource = resourceLoader.getResource("classpath:snsw-pdt-guide.txt");
+        Resource resource = resourceLoader.getResource("classpath:claims-pdt-guide.txt");
         Document document = loadDocument(resource.getFile().toPath(), new TextDocumentParser());
 
         // 3. Split the document into segments 100 tokens each

@@ -6,3 +6,6 @@ GET localhost:8080/chat?question=Pleaes cancel my application. My first name is 
 
 GET localhost:8080/chat?question=My email is 'curtis@gmail.com'. Please find my applications.
 ###
+
+GET localhost:8080/chat?question=My email is 'duran@gmail.com'. Please find my applications.
+###
