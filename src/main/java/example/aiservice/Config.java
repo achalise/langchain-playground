@@ -1,8 +1,10 @@
 package example.aiservice;
 
 import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.DocumentParser;
 import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
+import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -18,18 +20,26 @@ import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import example.aiservice.customerservice.CustomerService;
 import example.aiservice.customerservice.CustomerServiceAgent;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocument;
 import static dev.langchain4j.model.openai.OpenAiModelName.GPT_3_5_TURBO;
+import static java.lang.StringTemplate.STR;
 
 @Configuration
 public class Config {
+    @Value("${doc.names}")
+    private String docNames;
+
+
     @Bean
     CustomerServiceAgent customerSupportAgent(ChatLanguageModel chatLanguageModel,
                                               ContentRetriever contentRetriever,
@@ -74,8 +84,24 @@ public class Config {
         EmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
 
         // 2. Load an example document ("Miles of Smiles" terms of use)
-        Resource resource = resourceLoader.getResource("classpath:claims-pdt-guide.txt");
-        Document document = loadDocument(resource.getFile().toPath(), new TextDocumentParser());
+        var docList = List.of(docNames.split(","));
+        docList.forEach(doc -> {
+           Resource resource = resourceLoader.getResource(STR."classpath:\{doc}");
+            try {
+                loadEmbeddingForDocument(embeddingModel, resource, embeddingStore);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return embeddingStore;
+    }
+
+    private DocumentParser getParserForDocument(Resource resource) throws IOException {
+        return resource.getFile().toPath().toString().endsWith(".pdf") ? new ApachePdfBoxDocumentParser() : new TextDocumentParser();
+    }
+
+    private void loadEmbeddingForDocument(EmbeddingModel embeddingModel, Resource resource, EmbeddingStore<TextSegment> embeddingStore) throws IOException {
+        Document document = loadDocument(resource.getFile().toPath(), getParserForDocument(resource));
 
         // 3. Split the document into segments 100 tokens each
         // 4. Convert segments into embeddings
@@ -88,7 +114,5 @@ public class Config {
                 .embeddingStore(embeddingStore)
                 .build();
         ingestor.ingest(document);
-
-        return embeddingStore;
     }
 }

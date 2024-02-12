@@ -29,6 +29,20 @@ public class CustomerService {
         return getCustomerApplicationsByCorrelationid(correlationId);
     }
 
+    @Tool
+    public void updateAddress(String correlationId, String address) {
+       List<Customer> customerList = getCustomerApplicationsByCorrelationid(correlationId);
+       Customer customer = customerList.getFirst();
+       customers.remove(customer);
+       customers.add(new Customer(correlationId, customer.email(), customer.firstName(), customer.lastName(),
+               address, customer.rebateType(), customer.amount(), customer.status()));
+    }
+
+    @Tool
+    public List<Customer> retrieveAllApplications() {
+        return customers.stream().toList();
+    }
+
     private List<Customer> getCustomerApplicationsByEmail(String email) {
         System.out.println("Finding customer with email " + email);
         var custList = customers.stream().filter(customer -> customer.email().equals(email)).toList();
