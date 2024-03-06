@@ -9,8 +9,10 @@ import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
@@ -39,12 +41,19 @@ public class Config {
     @Value("${doc.names}")
     private String docNames;
 
+    @Bean
+    StreamingChatLanguageModel streamingModel() {
+        return OpenAiStreamingChatModel.withApiKey(System.getenv("AI_OPENAI_API_KEY"));
+    }
+
 
     @Bean
-    CustomerServiceAgent customerSupportAgent(ChatLanguageModel chatLanguageModel,
+    CustomerServiceAgent customerSupportAgent(StreamingChatLanguageModel streamingChatLanguageModel,
+                                              ChatLanguageModel chatLanguageModel,
                                               ContentRetriever contentRetriever,
                                               CustomerService customerService) {
         return AiServices.builder(CustomerServiceAgent.class)
+                .streamingChatLanguageModel(streamingChatLanguageModel)
                 .chatLanguageModel(chatLanguageModel)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(20))
                 .tools(customerService)

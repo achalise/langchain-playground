@@ -1,6 +1,7 @@
 package example.aiservice.customerservice;
 
 import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.TokenStream;
 
 public interface CustomerServiceAgent {
     @SystemMessage({
@@ -11,4 +12,7 @@ public interface CustomerServiceAgent {
             "Today is {{current_date}}."
     })
     String chat(String userMessage);
+
+    TokenStream chatStream(String userMessage);
+
 }
