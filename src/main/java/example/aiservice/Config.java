@@ -22,9 +22,11 @@ import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import example.aiservice.customerservice.CustomerService;
 import example.aiservice.customerservice.CustomerServiceAgent;
+import example.aiservice.customerservice.DocIngestionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
@@ -103,6 +105,26 @@ public class Config {
             }
         });
         return embeddingStore;
+    }
+
+    @Bean
+    EmbeddingStoreIngestor embeddingStoreIngestor(EmbeddingModel embeddingModel, EmbeddingStore<TextSegment> embeddingStore) {
+        DocumentSplitter documentSplitter = DocumentSplitters.recursive(100, 0, new OpenAiTokenizer(GPT_3_5_TURBO));
+        return EmbeddingStoreIngestor.builder()
+                .documentSplitter(documentSplitter)
+                .embeddingModel(embeddingModel)
+                .embeddingStore(embeddingStore)
+                .build();
+    }
+
+    @Bean
+    FileSystemResourceLoader resourceLoader() {
+        return new FileSystemResourceLoader();
+    }
+
+    @Bean
+    DocIngestionService docIngestionService(EmbeddingStoreIngestor embeddingStoreIngestor, FileSystemResourceLoader resourceLoader) {
+        return new DocIngestionService(embeddingStoreIngestor, resourceLoader);
     }
 
     private DocumentParser getParserForDocument(Resource resource) throws IOException {
